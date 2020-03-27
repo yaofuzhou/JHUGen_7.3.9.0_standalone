@@ -1,0 +1,178 @@
+Program: JHUGenerator
+
+source code: Fortran 90 and C
+compiler: ifort or f95 (gfortran), gcc
+makefile contains the switch "Comp" which can be set to "gfort" or "ifort" for compilation with f95 or ifort, respectively.
+
+to compile the code: make
+to run: ./JHUGen Parameter1=value1 Parameter2=value2 ...
+
+See the manual for more details
+
+Command line parameters for quick reference:
+  help:                Print all command line options
+  version:             Print the version tag
+  DryRun:              Check that the command line is valid, then exit
+  Process configuration:
+    Collider:          1=LHC (default), 2=Tevatron, 0=e+e-
+    ColliderEnergy:    in TeV.  default is 13 TeV for LHC, 1.96 TeV for Tevatron,
+                       250 GeV for e+e-
+    Process:           0=spin-0, 1=spin-1, 2=spin-2 resonance,
+                       50=qq/ee->VH, 51=gg->ZH,
+                       60=VBF, 61=pp->Hjj, 62=pp->Hj,
+                       66=EW VVJJ sig., 67=EW VVJJ bkg., 68=EW VVJJ tot.,
+                       69=QCD VVJJ bkg.,
+                       70=EW VVLL sig., 71=EW VVLL bkg., 72=EW VVLL tot.,
+                       73=gg 4f sig., 74=gg 4f bkg., 75=gg 4f tot.,
+                       80=ttH, 90=bbH,
+                       110=t+H t channel, 111=tbar+H t channel,
+                       112=t+H s channel, 113=tbar+H s channel
+                       114=t/tbar+H t/s channels
+    DecayMode1:        decay mode for vector boson 1 (Z/W/gamma)
+    DecayMode2:        decay mode for vector boson 2 (Z/W/gamma)
+                         0=Z->2l,  1=Z->2q, 2=Z->2tau, 3=Z->2nu,
+                         4=W->lnu, 5=W->2q, 6=W->taunu,
+                         7=gamma, 8=Z->2l+2tau,
+                         9=Z->anything, 10=W->lnu+taunu, 11=W->anything
+                         Exclusive difermion modes other than those with the tau flavor:
+                         The numbers p=(1; 2, 3; 5, 7, 11, 13, 17)
+                         represent f=(nu; e, mu; d, u, s, c, b). In order to have a
+                         V->f1 f2 decay, please specify the decay mode as -p1*p2
+                         for the p1 and p2 that match f1 and f2.
+    Interf:            0=neglect interference for 4f final states,
+                       1=include interference
+    ReweightInterf:    if true, include interference as LHE event weights for
+                       off-shell EW events
+    RandomizeVVdecays: Randomizes the order of DecayMode1 and DecayMode2,
+                       per event (default true)
+                       For a WW decay, turning this off will mean
+                       DecayMode1 is W+ and DecayMode2 is W-
+    PChannel:          0=g+g, 1=q+qb, 2=both
+    ChannelRatio:      ratio of qqb / (qqb + gg), for Process=2 PChannel=2
+                        default is to allow this ratio to come from the couplings
+    PDFSet:            1=CTEQ6L1(2001),  2=MSTW(2008),
+                       2xx=MSTW with eigenvector set xx=01..40,
+                       3=NNPDF3.0LO
+                       (only valid if not interfaced with LHAPDF)
+    LHAPDF:            info file to use if interfaced with LHAPDF
+                       (example: NNPDF30_lo_as_0130/NNPDF30_lo_as_0130.info)
+    LHAPDFMem:         member number in LHAPDF set
+    epPolarization:    Polarization of e+ for e+e- collider
+    emPolarization:    Polarization of e- for e+e- collider
+                         0:      no polarization
+                         +/-100: helicity=+/-1
+    TopDK:             For ttH or t+H, 0=leave top quarks as stable, 1=decay top quarks
+    TauDK:             In ReadLHE mode, specify this option as either 0 or 1
+                       to decay H->tautau.  If it is 0, the taus are written as
+                       stable; if it is 1, they decay to Wnu, with the W's decaying
+                       according to DecayModes1,2.
+    HbbDK:             For VH production, decay H->bb
+    VH_PC:             VH partonic channel and mode selection
+                       ee ( = e+ e- @LO)
+                       gg ( = triangles + boxes of gg)
+                       qq ( = q q~ @LO)
+                       lo ( = q q~ @LO)
+                       tr ( = triangles of gg)
+                       bo ( = boxes of gg)
+                       in ( = interference = 2*dble(box*dconjg(triangle)) of gg)
+                       qg ( = real - dipoles, for g q/q~ > VH + q/q~, for development only)
+                       gq ( = K + P, for g q/q~ > VH + q/q~, for development only)
+                       sb ( = real - dipoles, for q q~ @NLO, for development only)
+                       sp ( = virtual + I + K + P, for q q~ @NLO, for development only)
+                       nl ( = NLO = q q~ @LO + NLO + gq)
+                       VH_PC overrides Pchannel.
+    alpha_dip          extra non-physical degree of freedom for Process=51 & VH_PC=nl, defaulted at 1.
+                       Vary to check indepedence (of alpha_dip).
+    VBFoffsh_run:      For EW off-shell or QCD continuum productions, set this to an index
+                       for each of the jobs.  See manual for more details.
+  Resonance parameters:
+    MReso:             resonance mass in GeV (default=125.00)
+    GaReso:            resonance width in GeV (default=0.00407)
+    ctauReso:          resonance decay length in mm (default=0)
+    OffshellX:         Whether to allow resonance (X) to go off-shell
+                       in processes 0, 1 or 2
+    MZ:                Z mass in GeV (default=91.1876)
+    GaZ:               Z width in GeV (default=2.4952)
+    MW:                W mass in GeV (default=80.399)
+    GaW:               W width in GeV (default=2.085)
+    MReso2:            2nd resonance mass in GeV in off-shell EW
+    GaReso2:           2nd resonance width in GeV in off-shell EW
+  EW coupling parameters:
+    Vud:               CKM element for W-ud couplings
+    Vus:               CKM element for W-us couplings
+    Vub:               CKM element for W-ub couplings
+    Vcd:               CKM element for W-cd couplings
+    Vcs:               CKM element for W-cs couplings
+    Vcb:               CKM element for W-cb couplings
+    Vtd:               CKM element for W-td couplings
+    Vts:               CKM element for W-ts couplings
+    Vtb:               CKM element for W-tb couplings
+  Cuts:
+    pTjetcut:          Minimum pT for jets in GeV (default: 15)
+    deltaRcut:         Minimum deltaR for jets (default: 0.3)
+    mJJcut:            Minimum dijet mass in GeV (default: 0)
+    MPhotonCutoff:     Minimum mass for off-shell photons in GeV, when included (default: 4)
+    etajetcut:         Maximum |eta| for jets in off-shell EW (default: 4)
+    detajetcut:        Minimum deltaeta between jets in off-shell EW (default: 2)
+    JetsOppositeEta:   Require sgn(eta) to be opposite for the two jets in off-shell EW
+                       (default: true)
+    pTlepcut:          Minimum pT for leptons in off-shell EW, in GeV (default: 3)
+    etalepcut:         Maximum |eta| for leptons in off-shell EW (default: 2.7)
+    m4l_min, m4l_max:  Minimum and maximum four-lepton mass in off-shell EW
+    m2l_min:   Minimum invariant mass of V (on-shell) in new VH (\texttt{Process=51}) (default: 0)
+    m2l_max:   Maximum invariant mass of V (on-shell) in new VH (\texttt{Process=51}) (default: infinity)
+    mVH_min:   Minimum invariant mass of VH in new VH (\texttt{Process=51}) (default: 0)
+    mVH_max:   Maximum invariant mass of VH in new VH (\texttt{Process=51}) (default: infinity)
+  Renormalization and factorization scales:
+    FacScheme:         PDF factorization scale scheme
+    MuFacMultiplier:   Multiplier for the factorization scale chosen by FacScheme
+    RenScheme:         QCD renormalization scale scheme
+    MuRenMultiplier:   Multiplier for the renormalization scale chosen by RenScheme
+  Lepton and jet filter:
+    NLepMin:           Reject events that have less than this many charged leptons
+    NLepMax:           Reject events that have more than this many charged leptons
+    NJetMin:           Reject events that have less than this many jets
+    NJetMax:           Reject events that have more than this many jets
+    NOSMin:            Reject events that have less than this many
+                       opposite-sign pairs of leptons of any flavor
+    NOSMax:            Reject events that have more than this many
+                       opposite-sign pairs of leptons of any flavor
+    NOSSFMin:          Reject events that have less than this many
+                       opposite-sign same-flavor pairs of leptons
+    NOSSFMax:          Reject events that have more than this many
+                       opposite-sign same-flavor pairs of leptons
+    CountTauAsAny:     For OSSF pairs, taus can stand in place of electrons or muons
+                       of the same charge.
+    WriteFailedEvents: Write events that fail in the LHE file, but with a weight of 0
+                       (off by default)
+  Higgs propagator and decay width:
+    WidthScheme:       Higgs width scheme: 1 for running width, 2 for fixed width (default),
+                       and 3 for the CPS
+    WidthSchemeIn:     For decay mode, reweight from one propagator to another by setting
+                       WidthScheme and WidthSchemeIn to different values
+    ReweightDecay:     For decay mode, reweight input decay by the decay probability
+    PmHstarEvals:      For ReweightDecay, number of evaluations per mass point (default: 200000)
+    ReadPmHstar:       For ReweightDecay, read the decay probability distribution from a file
+    PmHstarFile:       File to write and read the decay probability distribution
+  Statistics options:
+    VegasNc0:          number of evaluations for integrand scan
+    VegasNc1:          number of evaluations for accept-reject sampling
+    VegasNc2:          number of events for accept-reject sampling
+    ReadCSmax:         Read the results of the grid generation step from a file
+    CSmaxFile:         File to use for reading (if ReadCSmax is set) or writing (otherwise)
+                       the results of the grid generation step.  Depending on the process,
+                       suffixes are appended to this base name. (default: DataFile without .lhe)
+    Seed:              Random seed for event generation
+  I/O options:
+    Unweighted:        0=weighted events, 1=unweighted events
+    WriteWeightedLHE:  For Unweighted=0, write weighted events to an LHE file
+                       (note that the output could be huge)
+    DataFile:          LHE output file
+    ReadLHE:           LHE input file from external file (only spin-0)
+    ConvertLHE:        Convert decay of the V from VH production.
+                       Use DecayMode1 to specify the decay.
+                       (should be a Z or W mode, depending on the input file)
+    UnformattedRead:   Turn this on if the normal, faster reading fails
+    VegasVerbosity:    Turn on or off verbose vegas printout (1: on, 0: off; default: 1)
+  Couplings:
+    See manual for the full list
